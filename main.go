@@ -20,19 +20,19 @@ func main() {
 			Email: "abdesselemaymen@gmail.com",
 		},
 	}
-	// app.Flags = []cli.Flag{
-	// 	cli.StringFlag{
-	// 		Name:  "new",
-	// 		Usage: "create a new golang api project",
-	// 	},
-	// }
 	app.Commands = []cli.Command{
 		{
 			Name: "new",
 			// Aliases: []string{"c"},
 			Usage: "create new golang rest api project",
 			Action: func(c *cli.Context) error {
+				if c.Args().First() != "" {
+					if NewGoProject(c.Args().First()) {
+						return nil
+					}
+				}
 				return nil
+
 			},
 		},
 		{
