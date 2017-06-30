@@ -4,12 +4,42 @@ import (
 	"fmt"
 	"os"
 	// "time"
+	"path"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"text/template"
 )
+
+type Server struct {
+	UrlDbPackage     string
+	UrlScriptPackage string
+	UrlRouterPackage string
+}
 
 var directoriesNames []string
 var pathProject string
+var pathDir string
+var currentPath string
 
 func init() {
+	// get katze package full path
+	_, katzePackage, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("No caller information")
+	}
+	pathDir = path.Dir(katzePackage)
+
+	// get the current project path
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		panic(err)
+	}
+	if strings.Contains(dir, os.Getenv("GOPATH")+"/src/") {
+		currentPath = strings.Replace(pathDir, os.Getenv("GOPATH")+"/src/", "", -1)
+	} else {
+		panic("The current structure is not supported: " + dir + " must be under gopath " + os.Getenv("GOPATH") + "/src")
+	}
 	// init the list of directories
 	directoriesNames = []string{"controllers", "db", "deploy", "models", "router", "interceptors", "script", "tests"}
 }
@@ -77,16 +107,25 @@ func createSimpleDir(path string, mode int) bool {
 }
 func createServerFile(pathFile string) bool {
 	// detect if file exists
-	var _, err = os.Stat(pathFile)
-
-	// create file if not exists
-	if os.IsNotExist(err) {
-		var file, err = os.Create(pathFile)
-		if err != nil {
-			fmt.Println(err.Error())
-			return false
-		}
-		defer file.Close()
+	file, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	if err != nil {
+		fmt.Println(err)
+		return false
 	}
+	defer file.Close()
+
+	server := Server{
+		UrlDbPackage:     currentPath + "/db",
+		UrlScriptPackage: currentPath + "/script",
+		UrlRouterPackage: currentPath + "/routes",
+	}
+	t := template.Must(template.New("server.tmpl").ParseFiles(pathDir + "/templates/server.tmpl"))
+	err2 := t.Execute(file, server)
+	if err2 != nil {
+		fmt.Println(err2)
+		return false
+	}
+
+	defer file.Close()
 	return true
 }

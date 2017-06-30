@@ -1,0 +1,69 @@
+package main
+
+import (
+	"fmt"
+    db "{{.UrlDbPackage}}"
+    Router "{{.UrlRouterPackage}}"
+    Script "{{.UrlScriptPackage}}"
+	"log"
+	"net/http"
+	"os"
+	"time"
+)
+
+func IfProductionEnv() bool {
+	if os.Getenv("GOLANG_ENV") == "production" {
+		return true
+	} else {
+		return false
+	}
+}
+func main() {
+	// create log file
+	if IfProductionEnv() {
+		f, err := os.OpenFile(time.Now().Local().Format("2006-01-02")+"-production.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		log.SetOutput(f)
+		db.Database.SetLogger(log.New(f, "SQL===>", 7))
+	}
+
+    // execute commande in golang project exp:
+    // go run server.go db:migrate
+    // ./server db:seed
+    // go run server.go db:drop 2017-12-01"current date"
+	if len(os.Args) > 1 {
+		switch arg := os.Args[1]; arg {
+		default:
+			fmt.Printf("commad not found:\ndb:migrate\ndb:seed\ndb:drop [current date] exp=> db:drop 2017-06-23")
+		case "db:migrate":
+			fmt.Println(Script.Migrate())
+		case "db:drop":
+			if len(os.Args) > 2 {
+				if time.Now().Local().Format("2006-01-02") == os.Args[2] {
+					fmt.Println(Script.DropAllTable())
+				} else {
+					fmt.Printf("error: the current date is %s , your date is %s", time.Now().Local().Format("2006-01-02"), os.Args[2])
+				}
+			} else {
+				fmt.Println("the commad drop must be like (db:drop 2017-06-23)")
+			}
+		case "db:seed":
+			fmt.Println(Script.Seed())
+		}
+	} else {
+
+		defer db.Database.Close()
+		if IfProductionEnv() {
+			fmt.Println("Starting server on :8000")
+			log.Fatal(http.ListenAndServe(":8000", Router.Routes()))
+		} else {
+			fmt.Println("Starting server on :3001")
+			log.Fatal(http.ListenAndServe(":3001", Router.Routes()))
+		}
+
+	}
+}
+
