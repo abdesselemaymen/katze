@@ -1,0 +1,51 @@
+package db
+
+import (
+	"fmt"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	gocache "github.com/patrickmn/go-cache"
+	Config "{{.UrlConfigPackage}}"
+	"os"
+	"time"
+)
+
+type Meta struct {
+	CurrentPage int  `json:current_page`
+	NextPage    *int `json:next_page`
+	PrevPage    *int `json:prev_page`
+	TotalPages  int  `json:total_pages`
+	TotalCount  int  `json:total_count`
+}
+
+var Database *gorm.DB
+var (
+	Cache = gocache.New(5*time.Minute, 30*time.Second)
+)
+
+func IfProductionEnv() bool {
+	if os.Getenv("GOLANG_ENV") == "production" {
+		return true
+	} else {
+		return false
+	}
+}
+func init() {
+	if IfProductionEnv() {
+		connectionString := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=%s password=%s", os.Getenv("DB_HOST"), os.Getenv("DB_USERNAME"), os.Getenv("DB_NAME"), os.Getenv("DB_SSLMODE"), os.Getenv("DB_PASSWORD"))
+		var err error
+		Database, err = gorm.Open(Config.DBType, connectionString)
+		if err != nil {
+			panic(err.Error())
+		}
+	} else {
+		connectionString := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=%s password=%s", Config.DBHost, Config.DBUser, Config.DBName, Config.DBSSLMode, Config.DBPassword)
+		var err error
+		Database, err = gorm.Open(Config.DBType, connectionString)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
+	// fmt.Println(connectionString)
+}

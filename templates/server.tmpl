@@ -5,6 +5,7 @@ import (
     db "{{.UrlDbPackage}}"
     Router "{{.UrlRouterPackage}}"
     Script "{{.UrlScriptPackage}}"
+    Config "{{.UrlConfigPackage}}"
 	"log"
 	"net/http"
 	"os"
@@ -57,11 +58,11 @@ func main() {
 
 		defer db.Database.Close()
 		if IfProductionEnv() {
-			fmt.Println("Starting server on :8000")
-			log.Fatal(http.ListenAndServe(":8000", Router.Routes()))
+			fmt.Println("Starting server on :"+Config.ServerProdPort)
+			log.Fatal(http.ListenAndServe(":"+Config.ServerProdPort, Router.Routes()))
 		} else {
-			fmt.Println("Starting server on :3001")
-			log.Fatal(http.ListenAndServe(":3001", Router.Routes()))
+			fmt.Println("Starting server on :"+Config.ServerDevPort)
+			log.Fatal(http.ListenAndServe(":"+Config.ServerDevPort, Router.Routes()))
 		}
 
 	}

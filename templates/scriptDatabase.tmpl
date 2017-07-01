@@ -1,0 +1,34 @@
+package script
+
+import (
+    "fmt"
+    db "{{.UrlDbPackage}}"
+)
+
+// script to delete table with name
+func DropTable(table string) string {
+    err := db.Database.DropTableIfExists(table)
+    if err.Error != nil {
+        return table + ": Error delete"
+    }
+    return table + ": deleted"
+}
+
+// script to delete all data base
+func DropAllTable() string {
+    err := db.Database.DropTableIfExists("tableName1", "tableName2")
+    if err.Error != nil {
+        return "Error delete"
+    }
+    return "Success all database deleted"
+}
+
+// script to migrate database
+func Migrate() string {
+    userErr := db.Database.AutoMigrate(&db.User{})
+    if userErr.Error != nil {
+        return "User: error migration"
+    }
+    fmt.Println("User: migrated")
+    return "Success migration"
+}

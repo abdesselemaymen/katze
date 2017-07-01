@@ -38,7 +38,7 @@ func main() {
 		{
 			Name:    "server",
 			Aliases: []string{"s"},
-			Usage:   "start go server",
+			Usage:   "start katze server",
 			Action: func(c *cli.Context) error {
 				return nil
 			},

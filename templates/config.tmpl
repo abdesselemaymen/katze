@@ -1,0 +1,29 @@
+package config
+
+var (
+	// data base params
+	DBName     string
+	DBPassword string
+	DBHost     string
+	DBUser     string
+	DBType     string
+	DBSSLMode  string
+	// server params
+	ServerDevPort  string
+	ServerProdPort string
+)
+
+func init() {
+	// init data base params
+	DBName = "dataBaseName"
+	DBPassword = "password"
+	DBHost = "localhost"
+	DBUser = "user"
+	DBType = "postgres"
+	DBSSLMode = "disable"
+
+	// init server params
+	ServerDevPort = "3000"
+	ServerProdPort = "8000"
+
+}

@@ -1,0 +1,41 @@
+
+package router
+
+import (
+	"github.com/codegangsta/negroni"
+	"github.com/gorilla/mux"
+
+    Controller "{{.UrlControllerPackage}}"
+    Interceptor "{{.UrlInterceptorPackage}}"
+)
+
+// initialize Routes
+func Routes() *mux.Router {
+	router := mux.NewRouter().StrictSlash(false)
+
+	// protectRoutes := mux.NewRouter()
+	// protectRoutes = protectRoutes.PathPrefix("/api").Subrouter()
+	// protectRoutes.Path("/profile").HandlerFunc(Controller.profile).Methods("GET")
+
+	// publicRoutes := mux.NewRouter()
+	// publicRoutes = publicRoutes.PathPrefix("/api").Subrouter()
+	// publicRoutes.Path("/").HandlerFunc(Controller.Home).Methods("GET")
+	// publicRoutes.Path("/posts").HandlerFunc(Controller.Posts)
+	// publicRoutes.Path("/login").HandlerFunc(Controller.LoginUser).Methods("POST")
+	// publicRoutes.Path("/signup").HandlerFunc(Controller.SignupUser).Methods("POST")
+
+	// the middlewares
+    // private routes
+	// router.PathPrefix("/api/profile").Methods("GET").Handler(negroni.New(
+	// 	negroni.HandlerFunc(Interceptor.IsLoggedIn),
+	// 	negroni.Wrap(protectRoutes),
+	// ))
+
+    // public routes
+	// router.PathPrefix("/api").Handler(negroni.New(
+	// 	negroni.HandlerFunc(Interceptor.Public),
+	// 	negroni.Wrap(publicRoutes),
+	// ))
+
+	return router
+}

@@ -1,0 +1,15 @@
+package script
+
+import (
+    "fmt"
+    db "{{.UrlDbPackage}}"
+)
+// script to init data base
+func Seed() string {
+	fmt.Println(seedTest())
+	return "Seed ended"
+}
+func seedCategories() string {
+    // your logic hear
+    return "message"
+}
